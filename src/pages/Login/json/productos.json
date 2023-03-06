@@ -1,0 +1,37 @@
+[
+    {
+        "id": "1",
+        "nombre": "Crema dental",
+        "stock": "250",
+        "precio": "4000",
+        "url": "Crema-Dental"
+    },
+    {
+        "id": "2",
+        "nombre": "Papel higenico",
+        "stock": "300",
+        "precio": "3500",
+        "url": "Papel-higenico"
+    },
+    {
+        "id": "2",
+        "nombre": "Papel higenico",
+        "stock": "300",
+        "precio": "3500",
+        "url": "Papel-higenico"
+    },
+    {
+        "id": "3",
+        "nombre": "Papas Margarita de pollo",
+        "stock": "145",
+        "precio": "2500",
+        "url": "Papas-Margarita-de-pollo"
+    },
+    {
+        "id": "4",
+        "nombre": "Cepillo de dientes",
+        "stock": "343",
+        "precio": "10000",
+        "url": "Cepillo-de-dientes"
+    }
+]

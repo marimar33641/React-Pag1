@@ -1,0 +1,70 @@
+.login-container{
+    width: 100%;
+    min-width: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 80px;
+    background-color: blue;
+    opacity: 0.7;
+    transition: 3s;
+}
+.submit-button-container{
+    width: 100%;
+    height: 40px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    background-color: purple;
+    opacity: 0.8;
+    box-shadow: 0 9px #999;
+}
+.submit-button-container:hover {background-color: purple; opacity:1 }
+
+.submit-button-container:active {
+  background-color: purple;
+  opacity: 0.7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+.login-form-title{
+    display: block;
+    font-size: 30px;
+    color:azure;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.label-error{
+    font-size: 12px;
+    color:red;
+    background: purple;
+    width: fit-content;
+    height: fit-content;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+.label-alert{
+    font-size: 14px;
+    color:white;
+    background: purple;
+    width: fit-content;
+    height: fit-content;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.home-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: 3s;
+}
+.home-container h1, .home-container label{
+    color:white;
+}

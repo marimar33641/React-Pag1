@@ -1,0 +1,17 @@
+{
+    "code": 200,
+    "message": [
+      {
+        "id": "63f376aa77e87d3184069504",
+        "nombre": "ariel_2",
+        "unidades_disponibles": 420,
+        "precio": 17500
+      },
+      {
+        "id": "63f376bb77e27d3184069504",
+        "nombre": "Jabon",
+        "unidades_disponibles": 420,
+        "precio": 69000
+      }
+    ]
+}
