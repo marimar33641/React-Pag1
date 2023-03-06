@@ -1,19 +1,19 @@
 import React from "react";
-import { BrowserRouter as Router, Routes ,Route } from 'react-router-dom'
-import Login from "./Login";
+import { BrowserRouter, Routes,Route } from 'react-router-dom'
 import Menu from "./Menu";
 import Menu2 from "./Menu2";
+import Login from "./Login";
 
 function Routess(){
     return(
-        <Router>
+        <BrowserRouter>
             <Routes>
-                <Route exact path="/" component= {Login} />
-                <Route exact path="/Menu" component= {Menu} />
-                <Route exact path="/Menu2" component= {Menu2} />
+                <Route exact path="/" element= {<Login/>} />
+                <Route exact path="/Menu" element= {<Menu/>} />
+                <Route exact path="/Menu2" element= {<Menu2/>} />
 
             </Routes>
-        </Router>
+        </BrowserRouter>
 
     );
 }
