@@ -6,6 +6,11 @@ function Formulario() {
   const [ccComprador, setCcComprador] = useState('');
   const [cantidadProductos, setCantidadProductos] = useState(0);
   const [productos, setProductos] = useState([]);
+  const [sumaProductos, setSumaProductos] = useState(0);
+  const [valorTotal, setValorTotal] = useState(0);
+  const [puntosTotales, setPuntosTotales] = useState(0);
+  
+
 
   const handleCcVendedorChange = (event) => {
     setCcVendedor(event.target.value);
@@ -37,10 +42,34 @@ function Formulario() {
     const newProductos = [...productos];
     newProductos[index][field] = value;
     setProductos(newProductos);
+  
+    // Calcular la suma total de todos los productos
+    const suma = newProductos.reduce((total, producto) => {
+      return total + producto.cantidad;
+    }, 0);
+    setSumaProductos(suma);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+  
+    // Calcular el valor total de la compra
+    let valorTotal = 0;
+    let puntosTotales = 0;
+    productos.forEach((producto) => {
+      const infoProducto = productosData.message.find(
+        (p) => p.nombre === producto.nombre
+      );
+      if (infoProducto) {
+        const valorProducto = infoProducto.precio * producto.cantidad;
+        const impuestoProducto = valorProducto * 0.19;
+        valorTotal += valorProducto + impuestoProducto;
+        puntosTotales += Math.floor(valorProducto / 1000);
+      }
+    });
+    setValorTotal(valorTotal);
+    setPuntosTotales(puntosTotales);
+  
     // hacer algo con los datos capturados, por ejemplo enviarlos al servidor
   };
 
@@ -98,6 +127,10 @@ function Formulario() {
       <div>
         <label>Productos:</label>
         {renderProductoFields()}
+        <div>Suma total de productos: {sumaProductos}</div>
+        <div>Valor total de la compra: {valorTotal}</div>
+        <div>Valor total de puntos ganados: {puntosTotales}</div>
+        
       </div>
       <button type="submit">Enviar</button>
     </form>
