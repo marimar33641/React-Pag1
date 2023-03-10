@@ -9,7 +9,6 @@ function Formulario() {
   const [sumaProductos, setSumaProductos] = useState(0);
   const [valorTotal, setValorTotal] = useState(0);
   const [puntosTotales, setPuntosTotales] = useState(0);
-  
 
 
   const handleCcVendedorChange = (event) => {
@@ -71,6 +70,16 @@ function Formulario() {
     setPuntosTotales(puntosTotales);
   
     // hacer algo con los datos capturados, por ejemplo enviarlos al servidor
+    // Guardar los datos en localStorage
+    const datos = {
+    ccVendedor,
+    ccComprador,
+    productos,
+    sumaProductos,
+    valorTotal,
+    puntosTotales
+    };
+    localStorage.setItem('datosCompra', JSON.stringify(datos));
   };
 
   const verificarCantidadProducto = (nombreProducto, cantidadDeseada) => {
