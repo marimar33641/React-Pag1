@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import productosData from './json/example.json';
 
 function Formulario() {
@@ -9,6 +10,9 @@ function Formulario() {
   const [sumaProductos, setSumaProductos] = useState(0);
   const [valorTotal, setValorTotal] = useState(0);
   const [puntosTotales, setPuntosTotales] = useState(0);
+  const [facturaId, setIdFactura] = useState(0);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  
 
 
   const handleCcVendedorChange = (event) => {
@@ -48,9 +52,24 @@ function Formulario() {
     }, 0);
     setSumaProductos(suma);
   };
+  function guardarDatosEnJson(datos) {
+    const jsonString = JSON.stringify(datos);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = `factura-${datos.facturaId}.json`;
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    // Generar un ID único para la factura
+    const facturaId = uuidv4();
+    setIdFactura(facturaId);
   
     // Calcular el valor total de la compra
     let valorTotal = 0;
@@ -72,20 +91,52 @@ function Formulario() {
     // hacer algo con los datos capturados, por ejemplo enviarlos al servidor
     // Guardar los datos en localStorage
     const datos = {
-    ccVendedor,
-    ccComprador,
-    productos,
-    sumaProductos,
-    valorTotal,
-    puntosTotales
+        facturaId,
+        ccVendedor,
+        ccComprador,
+        productos,
+        sumaProductos,
+        valorTotal,
+        puntosTotales
     };
     localStorage.setItem('datosCompra', JSON.stringify(datos));
+    guardarDatosEnJson(datos);
   };
 
   const verificarCantidadProducto = (nombreProducto, cantidadDeseada) => {
     const producto = productosData.message.find((p) => p.nombre === nombreProducto);
     return producto ? producto.unidades_disponibles >= cantidadDeseada : false;
   };
+  function reiniciarFormulario() {
+    setCcVendedor('');
+    setCcComprador('');
+    setCantidadProductos(0);
+    setProductos([]);
+    setSumaProductos(0);
+    setValorTotal(0);
+    setPuntosTotales(0);
+    setIdFactura(0);
+  }
+
+  /*
+        function cargarDatosGuardados() {
+        const datos = JSON.parse(localStorage.getItem('datosCompra'));
+            if (datos) {
+                setCcVendedor(datos.ccVendedor);
+                setCcComprador(datos.ccComprador);
+                setCantidadProductos(datos.productos.length);
+                setProductos(datos.productos);
+                setSumaProductos(datos.sumaProductos);
+                setValorTotal(datos.valorTotal);
+                setPuntosTotales(datos.puntosTotales);
+                setIdFactura(datos.facturaId);
+            }
+        }
+        // Llamar la función de cargar los datos guardados cuando se monta el componente
+        useEffect(() => {
+        cargarDatosGuardados();
+        }, []);
+  */
 
   const renderProductoFields = () => {
     const fields = [];
@@ -136,6 +187,7 @@ function Formulario() {
       <div>
         <label>Productos:</label>
         {renderProductoFields()}
+        <div>ID FACTURA: {facturaId}</div>
         <div>Suma total de productos: {sumaProductos}</div>
         <div>Valor total de la compra: {valorTotal}</div>
         <div>Valor total de puntos ganados: {puntosTotales}</div>
