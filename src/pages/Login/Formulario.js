@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import productosData from './json/example.json';
-
+import './Formulario.css'
 function Formulario() {
   const [ccVendedor, setCcVendedor] = useState('');
   const [ccComprador, setCcComprador] = useState('');
@@ -11,10 +11,76 @@ function Formulario() {
   const [valorTotal, setValorTotal] = useState(0);
   const [puntosTotales, setPuntosTotales] = useState(0);
   const [facturaId, setIdFactura] = useState(0);
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [productoActual, setProductoActual] = useState({nombre: '', cantidad: 0});
+  const [facturas, setFacturas] = useState(JSON.parse(localStorage.getItem('facturas')) || []);
+
+
+  const verificarCantidadProducto = (nombreProducto, cantidadDeseada) => {
+    const producto = productosData.message.find((p) => p.nombre === nombreProducto);
+    return producto ? producto.unidades_disponibles >= cantidadDeseada : false;
+  };
+  const handleInputChange = (event) => {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+
+    if (name === 'cantidadProductos') {
+      // Actualizar la cantidad de productos
+      setCantidadProductos(value);
+      // Crear un array vacío de productos con la cantidad indicada
+      const nuevosProductos = new Array(Number(value)).fill({ nombre: '', valor: 0 });
+      // Actualizar el estado de los productos
+      setProductos(nuevosProductos);
+    } else if (name.startsWith('producto-')) {
+      // Actualizar el nombre o el valor de un producto
+      const index = Number(name.split('-')[1]);
+      const propiedad = name.split('-')[2];
+      const nuevosProductos = [...productos];
+      nuevosProductos[index][propiedad] = value;
+      setProductos(nuevosProductos);
+    } else {
+      // Actualizar otros campos del formulario
+      switch (name) {
+        case 'ccVendedor':
+          setCcVendedor(value);
+          break;
+        case 'ccComprador':
+          setCcComprador(value);
+          break;
+        case 'idFactura':
+          setIdFactura(value);
+          break;
+        case 'valorTotal':
+          setValorTotal(value);
+          break;
+        case 'puntosTotales':
+          setPuntosTotales(value);
+          break;
+        default:
+          break;
+      }
+    }
+  };
 
   
+  function actualizarFacturaEnLocalStorage(facturaId, nuevosDatos) {
+    // Obtener las facturas del localStorage
+    const facturas = JSON.parse(localStorage.getItem("facturas")) || [];
+  
+    // Buscar la factura a actualizar por su ID
+    const facturaActualizada = facturas.find((factura) => factura.id === facturaId);
+  
+    // Si la factura existe, actualizar sus datos y guardarlas en el localStorage
+    if (facturaActualizada) {
+      facturaActualizada.ccVendedor = nuevosDatos.ccVendedor || facturaActualizada.ccVendedor;
+      facturaActualizada.ccComprador = nuevosDatos.ccComprador || facturaActualizada.ccComprador;
+      facturaActualizada.cantidadProductos = nuevosDatos.cantidadProductos || facturaActualizada.cantidadProductos;
+      facturaActualizada.productos = nuevosDatos.productos || facturaActualizada.productos;
+      localStorage.setItem("facturas", JSON.stringify(facturas));
+      setFacturas(facturas);
+    }
+  }
+
 
   const handleCcVendedorChange = (event) => {
     setCcVendedor(event.target.value);
@@ -81,6 +147,30 @@ const handleReset = () => {
   }
 };
 
+
+
+const handleLoadFactura = (event) => {
+  event.preventDefault();
+  // Obtener el ID de la factura a cargar
+  const facturaId = Number(event.target.elements['idFactura'].value);
+  // Obtener las facturas del localStorage
+  const facturas = JSON.parse(localStorage.getItem('facturas')) || [];
+  // Buscar la factura a actualizar por su ID
+  const facturaActualizada = facturas.find((factura) => factura.id === facturaId);
+  // Si la factura existe, cargar sus datos en el formulario
+  if (facturaActualizada) {
+    setCcVendedor(facturaActualizada.ccVendedor);
+    setCcComprador(facturaActualizada.ccComprador);
+    setCantidadProductos(facturaActualizada.cantidadProductos);
+    setProductos(facturaActualizada.productos);
+    setIdFactura(facturaId);
+    setValorTotal(facturaActualizada.valorTotal);
+    setPuntosTotales(facturaActualizada.puntosTotales);
+    }
+    else {
+    alert('No se encontró una factura con el ID ingresado.');
+  }
+};
 const handleSubmit = (event) => {
   event.preventDefault();
   // Generar un ID único para la factura
@@ -114,50 +204,17 @@ const handleSubmit = (event) => {
     valorTotal,
     puntosTotales
   };
-  localStorage.setItem('datosCompra', JSON.stringify(datos));
+  setFacturas([...facturas, datos]);
+  //localStorage.setItem('datosCompra', JSON.stringify(datos));
+  localStorage.setItem('facturas', JSON.stringify([...facturas, datos]));
+
   guardarDatosEnJson(datos);
-  
+  actualizarFacturaEnLocalStorage(datos);
   // Reiniciar el formulario
   handleReset();
 };
 
-  const verificarCantidadProducto = (nombreProducto, cantidadDeseada) => {
-    const producto = productosData.message.find((p) => p.nombre === nombreProducto);
-    return producto ? producto.unidades_disponibles >= cantidadDeseada : false;
-  };
-  function reiniciarFormulario() {
-    const datos = JSON.parse(localStorage.getItem('datosCompra'));
-    if (datos) {
-      setCcVendedor(datos.ccVendedor);
-      setCcComprador(datos.ccComprador);
-      setCantidadProductos(datos.productos.length);
-      setProductos(datos.productos);
-      setSumaProductos(datos.sumaProductos);
-      setValorTotal(datos.valorTotal);
-      setPuntosTotales(datos.puntosTotales);
-      setIdFactura(datos.facturaId);
-    }
-  };
 
-  /*
-        function cargarDatosGuardados() {
-        const datos = JSON.parse(localStorage.getItem('datosCompra'));
-            if (datos) {
-                setCcVendedor(datos.ccVendedor);
-                setCcComprador(datos.ccComprador);
-                setCantidadProductos(datos.productos.length);
-                setProductos(datos.productos);
-                setSumaProductos(datos.sumaProductos);
-                setValorTotal(datos.valorTotal);
-                setPuntosTotales(datos.puntosTotales);
-                setIdFactura(datos.facturaId);
-            }
-        }
-        // Llamar la función de cargar los datos guardados cuando se monta el componente
-        useEffect(() => {
-        cargarDatosGuardados();
-        }, []);
-  */
 
   const renderProductoFields = () => {
     const fields = [];
@@ -215,6 +272,9 @@ const handleSubmit = (event) => {
         
       </div>
       <button type="submit">Enviar</button>
+      <button className="update-btn" onClick={() => actualizarFacturaEnLocalStorage(facturaId, { handleInputChange  })}>
+      Actualizar factura
+    </button>
     </form>
   );
 }
