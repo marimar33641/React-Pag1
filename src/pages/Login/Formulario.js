@@ -13,6 +13,10 @@ function Formulario() {
   const [facturaId, setIdFactura] = useState(0);
   const [productoActual, setProductoActual] = useState({nombre: '', cantidad: 0});
   const [facturas, setFacturas] = useState(JSON.parse(localStorage.getItem('facturas')) || []);
+  const [facturaIdBuscar, setFacturaIdBuscar] = useState("");
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
+  const [facturaEncontrada, setFacturaEncontrada] = useState(false);
+
 
 
   const verificarCantidadProducto = (nombreProducto, cantidadDeseada) => {
@@ -173,6 +177,7 @@ const handleLoadFactura = (event) => {
 };
 const handleSubmit = (event) => {
   event.preventDefault();
+  
   // Generar un ID único para la factura
   const facturaId = uuidv4();
   setIdFactura(facturaId);
@@ -248,6 +253,20 @@ const handleSubmit = (event) => {
     }
     return fields;
   };
+
+  const buscarFactura = () => {
+    const factura = facturas.find((f) => f.facturaId === facturaIdBuscar);
+    if (factura) {
+      setFacturaSeleccionada(factura);
+      setFacturaEncontrada(true);
+    } else {
+      setFacturaSeleccionada(null);
+      setFacturaEncontrada(false);
+      alert("Factura no encontrada");
+    }
+  };
+  
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -274,7 +293,18 @@ const handleSubmit = (event) => {
       <button type="submit">Enviar</button>
       <button className="update-btn" onClick={() => actualizarFacturaEnLocalStorage(facturaId, { handleInputChange  })}>
       Actualizar factura
-    </button>
+      </button>
+      <label>
+      Buscar factura por ID:
+      <input
+        type="text"
+        name="facturaIdBuscar"
+        value={facturaIdBuscar}
+        onChange={(e) => setFacturaIdBuscar(e.target.value)}
+      />
+    </label>
+    <button className="search-btn" onClick={buscarFactura}>Buscar</button>
+
     </form>
   );
 }
