@@ -1,4 +1,9 @@
 button.update-btn {
     display: block;
     margin-top: 50px;
-  }
+}
+button.search-btn{
+  display: block;
+  margin-top: 20px;
+}
+

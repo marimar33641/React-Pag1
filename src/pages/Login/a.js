@@ -54,12 +54,20 @@ function Formulario() {
         case 'idFactura':
           setIdFactura(value);
           break;
-        case 'valorTotal':
-          setValorTotal(value);
-          break;
-        case 'puntosTotales':
-          setPuntosTotales(value);
-          break;
+          case 'valorTotal':
+            if (value === '') {
+              setValorTotal(0);
+            } else {
+              setValorTotal(parseFloat(value));
+            }
+            break;
+          case 'puntosTotales':
+            if (value === '') {
+              setPuntosTotales(0);
+            } else {
+              setPuntosTotales(parseFloat(value));
+            }
+            break;
         default:
           break;
       }
@@ -97,19 +105,28 @@ function Formulario() {
   const handleCantidadProductosChange = (event) => {
     const newCantidadProductos = parseInt(event.target.value);
     setCantidadProductos(newCantidadProductos);
-    setProductos((prevProductos) => {
-      const newProductos = [...prevProductos];
-      if (newProductos.length < newCantidadProductos) {
-        // Agrega nuevos elementos a la lista de productos
-        for (let i = newProductos.length; i < newCantidadProductos; i++) {
-          newProductos.push({ nombre: '', cantidad: 0 });
+    if (newCantidadProductos === 0) {
+      setSumaProductos(0);
+      setValorTotal(0);
+      setCantidadProductos(0);
+      setPuntosTotales(0);
+      setIdFactura('');
+      
+    } else {
+      setProductos((prevProductos) => {
+        const newProductos = [...prevProductos];
+        if (newProductos.length < newCantidadProductos) {
+          // Agrega nuevos elementos a la lista de productos
+          for (let i = newProductos.length; i < newCantidadProductos; i++) {
+            newProductos.push({ nombre: '', cantidad: 0 });
+          }
+        } else if (newProductos.length > newCantidadProductos) {
+          // Elimina elementos de la lista de productos
+          newProductos.splice(newCantidadProductos);
         }
-      } else if (newProductos.length > newCantidadProductos) {
-        // Elimina elementos de la lista de productos
-        newProductos.splice(newCantidadProductos);
-      }
-      return newProductos;
-    });
+        return newProductos;
+      });
+    }
   };
 
   const handleProductoChange = (index, field, value) => {
@@ -133,6 +150,7 @@ function Formulario() {
     setValorTotal(valorCompra);
     setPuntosTotales(puntosGanados);
   };
+  
   function guardarDatosEnJson(datos) {
     const jsonString = JSON.stringify(datos);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -155,34 +173,10 @@ const handleReset = () => {
   setPuntosTotales(0);
   setIdFactura('');
   setProductoActual({nombre: '', cantidad: 0});
+  
   if (productos.length > 0) {
     // Si ya hay productos en el estado productos, no sobrescribirlos con un array vacío
     setProductos([]);
-  }
-};
-
-
-
-const handleLoadFactura = (event) => {
-  event.preventDefault();
-  // Obtener el ID de la factura a cargar
-  const facturaId = Number(event.target.elements['idFactura'].value);
-  // Obtener las facturas del localStorage
-  const facturas = JSON.parse(localStorage.getItem('facturas')) || [];
-  // Buscar la factura a actualizar por su ID
-  const facturaActualizada = facturas.find((factura) => factura.id === facturaId);
-  // Si la factura existe, cargar sus datos en el formulario
-  if (facturaActualizada) {
-    setCcVendedor(facturaActualizada.ccVendedor);
-    setCcComprador(facturaActualizada.ccComprador);
-    setCantidadProductos(facturaActualizada.cantidadProductos);
-    setProductos(facturaActualizada.productos);
-    setIdFactura(facturaId);
-    setValorTotal(facturaActualizada.valorTotal);
-    setPuntosTotales(facturaActualizada.puntosTotales);
-    }
-    else {
-    alert('No se encontró una factura con el ID ingresado.');
   }
 };
 
@@ -230,8 +224,6 @@ const handleSubmit = (event) => {
   handleReset();
 };
 
-
-
   const renderProductoFields = () => {
     const fields = [];
     for (let i = 0; i < cantidadProductos; i++) {
@@ -268,13 +260,36 @@ const handleSubmit = (event) => {
   const buscarFactura = () => {
     const factura = facturas.find((f) => f.facturaId === facturaIdBuscar);
     if (factura) {
-      setFacturaSeleccionada(factura);
-      setFacturaEncontrada(true);
-    } else {
-      setFacturaSeleccionada(null);
-      setFacturaEncontrada(false);
-      alert("Factura no encontrada");
-    }
+    setFacturaSeleccionada(facturaEncontrada);
+    setCcVendedor(facturaEncontrada.ccVendedor);
+    setCcComprador(facturaEncontrada.ccComprador);
+    setCantidadProductos(facturaEncontrada.cantidadProductos);
+    setProductos(facturaEncontrada.productos);
+    setSumaProductos(facturaEncontrada.productos.reduce((total, producto) => total + producto.cantidad, 0));
+    setValorTotal(facturaEncontrada.valorTotal);
+    setPuntosTotales(facturaEncontrada.puntosTotales);
+    setFacturaEncontrada(true);
+  } else {
+    setFacturaSeleccionada(null);
+    setFacturaEncontrada(false);
+    // Limpia todos los campos
+    setCcVendedor('');
+    setCcComprador('');
+    setCantidadProductos(0);
+    setProductos([]);
+    setSumaProductos(0);
+    setValorTotal(0);
+    setPuntosTotales(0);
+  }
+  };
+  const handleActualizarFactura = () => {
+    const nuevosDatos = {
+      ccVendedor: ccVendedor,
+      ccComprador: ccComprador,
+      cantidadProductos: cantidadProductos,
+      productos: productos
+    };
+    actualizarFacturaEnLocalStorage(facturaSeleccionada.id, nuevosDatos);
   };
   
 
@@ -301,10 +316,7 @@ const handleSubmit = (event) => {
         <div>Valor total de puntos ganados: {puntosTotales}</div>
         
       </div>
-      <button type="submit">Enviar</button>
-      <button className="update-btn" onClick={() => actualizarFacturaEnLocalStorage(facturaId, { handleInputChange  })}>
-      Actualizar factura
-      </button>
+      <button type="submit" >Enviar</button>
       <label>
       Buscar factura por ID:
       <input
@@ -315,6 +327,9 @@ const handleSubmit = (event) => {
       />
     </label>
     <button className="search-btn" onClick={buscarFactura}>Buscar</button>
+    <button className="update-btn" onClick={() => handleActualizarFactura(facturaId, { handleInputChange  })}>
+      Actualizar factura
+      </button>
 
     </form>
   );
